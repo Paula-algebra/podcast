@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Queue — PodCast</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #1a0d2e; --surface: #25193d; --surface-2: #2f2049;
+            --border: #3d2d5e; --accent: #ff6b6b; --accent-hover: #ee5454;
+            --accent-soft: #ff9999; --coral: #ff8a65; --gold: #ffd166;
+            --purple: #8b5cf6; --pink: #ec4899; --teal: #4dd4ac;
+            --text: #f5f0ff; --text-muted: #a89bc7;
+            --success: #4dd4ac; --danger: #ff5c6c; --info: #60a5fa;
+        }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+        a { color: var(--accent); text-decoration: none; }
+
+        .navbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+        .navbar-brand { display: flex; align-items: center; gap: 0.7rem; font-size: 1.4rem; font-weight: 900; color: var(--text); letter-spacing: -0.5px; }
+        .navbar-brand .accent { background: linear-gradient(135deg, var(--accent) 0%, var(--coral) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .brand-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--accent) 0%, var(--coral) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(255,107,107,0.3); }
+        .brand-icon svg { width: 22px; height: 22px; fill: var(--text); }
+        .navbar-nav { display: flex; align-items: center; gap: 1.5rem; list-style: none; }
+        .navbar-nav a { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
+        .navbar-nav a:hover { color: var(--accent); }
+        .user-badge { background: var(--surface-2); border: 1px solid var(--border); border-radius: 20px; padding: 0.25rem 0.85rem; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+
+        .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.1rem; border-radius: 10px; border: 1px solid transparent; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent) 0%, var(--coral) 100%); color: var(--text); }
+        .btn-primary:hover { box-shadow: 0 4px 14px rgba(255,107,107,0.35); }
+        .btn-outline { background: transparent; color: var(--text); border-color: var(--border); }
+        .btn-outline:hover { background: var(--surface-2); border-color: var(--accent); color: var(--accent); }
+        .btn-sm { padding: 0.32rem 0.8rem; font-size: 0.78rem; }
+        .btn-danger-sm { background: transparent; color: var(--danger); border: 1px solid var(--danger); border-radius: 10px; padding: 0.32rem 0.8rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+        .btn-danger-sm:hover { background: var(--danger); color: var(--text); }
+
+        .main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
+        .page-title { font-size: 1.9rem; font-weight: 900; letter-spacing: -0.5px; }
+        .page-title .accent { background: linear-gradient(135deg, var(--accent) 0%, var(--coral) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        .search-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem 1.3rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; }
+        .sg { display: flex; flex-direction: column; gap: 0.35rem; flex: 1; min-width: 140px; }
+        .sg label { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+        .form-control, .form-select { background: var(--surface-2); border: 1.5px solid var(--border); color: var(--text); padding: 0.55rem 0.9rem; border-radius: 10px; font-size: 0.9rem; appearance: none; width: 100%; transition: all 0.2s; }
+        .form-control:focus, .form-select:focus { outline: none; border-color: var(--accent); }
+        .form-control::placeholder { color: #6b5a87; }
+        .check-wrap { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.9rem; background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; }
+        .check-wrap input { accent-color: var(--accent); }
+        .check-wrap label { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; cursor: pointer; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.25s; display: flex; flex-direction: column; position: relative; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,0.4), 0 0 30px rgba(255,107,107,0.1); border-color: var(--accent); }
+
+        .status-stripe { height: 4px; }
+        .status-stripe.queued            { background: var(--info); }
+        .status-stripe.listening         { background: linear-gradient(90deg, var(--accent) 0%, var(--coral) 100%); }
+        .status-stripe.finished          { background: var(--success); }
+        .status-stripe.skipped           { background: var(--danger); opacity: 0.4; }
+        .status-stripe.saved_for_later   { background: var(--gold); }
+
+        .now-playing-indicator { position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, var(--accent) 0%, var(--coral) 100%); color: var(--text); padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.65rem; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px rgba(255,107,107,0.4); z-index: 1; }
+        .now-playing-indicator .pulse { width: 6px; height: 6px; background: var(--text); border-radius: 50%; animation: pulse 1.2s ease-in-out infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.4); }
+        }
+
+        .card-header { padding: 1.25rem 1.25rem 0.5rem; }
+        .show-line { font-size: 0.72rem; font-weight: 800; color: var(--accent-soft); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem; }
+        .subscribed-icon { color: var(--gold); font-size: 0.9rem; }
+        .episode-title { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.3px; line-height: 1.3; margin-bottom: 0.3rem; }
+        .episode-title a { color: var(--text); }
+        .episode-title a:hover { color: var(--accent-soft); }
+        .hosts-line { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.2rem; font-weight: 500; }
+        .hosts-line strong { color: var(--text); font-weight: 700; }
+        .ep-meta { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+
+        .card-body { padding: 0.5rem 1.25rem 1rem; flex: 1; display: flex; flex-direction: column; gap: 0.65rem; }
+
+        .progress-row { background: var(--surface-2); border-radius: 10px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.4rem; }
+        .progress-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+        .progress-percent { color: var(--accent); font-weight: 900; }
+        .progress-bar { height: 5px; background: var(--bg); border-radius: 3px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent) 0%, var(--coral) 100%); border-radius: 3px; position: relative; }
+        .progress-fill::after { content: ''; position: absolute; right: -3px; top: -2px; width: 9px; height: 9px; background: var(--text); border-radius: 50%; box-shadow: 0 0 8px rgba(255,107,107,0.6); }
+
+        .badges-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .badge { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
+        .badge-category { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid rgba(139,92,246,0.3); }
+        .badge-status-queued            { background: rgba(96,165,250,0.12); color: var(--info); border: 1px solid rgba(96,165,250,0.3); }
+        .badge-status-listening         { background: rgba(255,107,107,0.12); color: var(--accent-soft); border: 1px solid rgba(255,107,107,0.3); }
+        .badge-status-finished          { background: rgba(77,212,172,0.12); color: var(--success); border: 1px solid rgba(77,212,172,0.3); }
+        .badge-status-skipped           { background: rgba(255,92,108,0.08); color: var(--danger); border: 1px solid rgba(255,92,108,0.25); }
+        .badge-status-saved_for_later   { background: rgba(255,209,102,0.12); color: var(--gold); border: 1px solid rgba(255,209,102,0.3); }
+        .badge-explicit { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+        .badge-speed { background: rgba(77,212,172,0.1); color: var(--teal); border: 1px solid rgba(77,212,172,0.25); font-family: 'SF Mono', Monaco, monospace; }
+
+        .stars-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .stars { display: inline-flex; gap: 0.1rem; font-size: 0.95rem; }
+        .star-filled { color: var(--gold); }
+        .star-empty { color: var(--border); }
+        .recommend-pill { background: rgba(255,209,102,0.1); color: var(--gold); padding: 0.18rem 0.6rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; border: 1px solid rgba(255,209,102,0.3); }
+
+        .meta-row { display: flex; gap: 0.85rem; font-size: 0.75rem; padding-top: 0.4rem; flex-wrap: wrap; }
+        .meta-item { display: flex; align-items: center; gap: 0.3rem; color: var(--text-muted); font-weight: 600; }
+        .meta-item strong { color: var(--text); font-weight: 800; }
+
+        .quote-snippet { font-size: 0.8rem; color: var(--text); padding: 0.55rem 0.8rem; font-style: italic; background: linear-gradient(135deg, rgba(255,209,102,0.06) 0%, transparent 100%); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; line-height: 1.45; }
+        .quote-snippet::before { content: '" '; color: var(--gold); font-weight: 700; }
+        .quote-snippet::after { content: ' "'; color: var(--gold); font-weight: 700; }
+
+        .card-footer { display: flex; gap: 0.5rem; padding: 0.7rem 1.25rem; border-top: 1px solid var(--border); background: var(--surface-2); }
+
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+        .empty-state h3 { color: var(--text); font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .alert-success { padding: 0.85rem 1rem; border-radius: 10px; margin-bottom: 1.25rem; font-size: 0.9rem; background: rgba(77,212,172,0.1); border: 1px solid rgba(77,212,172,0.3); color: var(--success); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/episodes}">
+        <span class="brand-icon"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg></span>
+        <span><span class="accent">Pod</span>Cast</span>
+    </a>
+    <ul class="navbar-nav">
+        <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/episodes/new}">+ Add Episode</a></li>
+        <li><a href="/swagger-ui.html" target="_blank">API</a></li>
+        <li><span class="user-badge" sec:authentication="name">user</span></li>
+        <li>
+            <form th:action="@{/auth/logout}" method="post" style="display:inline">
+                <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+
+<div class="main">
+    <div th:if="${successMessage}" class="alert-success" th:text="${successMessage}"></div>
+
+    <div class="page-header">
+        <h1 class="page-title">My <span class="accent">Queue</span></h1>
+        <span class="user-badge" th:text="${episodes.size()} + ' episodes'"></span>
+    </div>
+
+    <form class="search-bar" th:action="@{/episodes}" method="get">
+        <div class="sg" style="flex:2; min-width:200px;">
+            <label>Title / Show / Host / Guest</label>
+            <input class="form-control" type="text" name="query" th:value="${query}" placeholder="e.g. Maintenance Phase, Aubrey Gordon...">
+        </div>
+        <div class="sg">
+            <label>Category</label>
+            <select class="form-select" name="category">
+                <option value="">All categories</option>
+                <option th:each="c : ${categories}" th:value="${c}"
+                        th:text="${#strings.replace(c.name(),'_',' ')}"
+                        th:selected="${selectedCategory == c}"></option>
+            </select>
+        </div>
+        <div class="sg">
+            <label>Status</label>
+            <select class="form-select" name="status">
+                <option value="">All statuses</option>
+                <option th:each="s : ${statuses}" th:value="${s}"
+                        th:text="${#strings.replace(s.name(),'_',' ')}"
+                        th:selected="${selectedStatus == s}"></option>
+            </select>
+        </div>
+        <div class="check-wrap">
+            <input id="subscribedOnly" type="checkbox" name="subscribedOnly" value="true" th:checked="${subscribedOnly}">
+            <label for="subscribedOnly">⭐ Subscribed only</label>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:flex-end;">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a th:href="@{/episodes}" class="btn btn-outline">Clear</a>
+        </div>
+    </form>
+
+    <div th:if="${episodes.isEmpty()}" class="empty-state">
+        <h3>No episodes yet</h3>
+        <p>Add your first episode to start your listening journal.</p>
+    </div>
+
+    <div class="grid" th:unless="${episodes.isEmpty()}">
+        <div class="card" th:each="episode : ${episodes}">
+            <div class="status-stripe" th:classappend="${#strings.toLowerCase(episode.status.name())}"></div>
+
+            <div class="now-playing-indicator" th:if="${episode.status.name() == 'LISTENING'}">
+                <span class="pulse"></span> Now Playing
+            </div>
+
+            <div class="card-header">
+                <div class="show-line">
+                    <span class="subscribed-icon" th:if="${episode.subscribed}">⭐</span>
+                    <span th:text="${episode.showName}"></span>
+                    <span th:if="${episode.episodeNumber != null and !episode.episodeNumber.isBlank()}"
+                          th:text="' · ' + ${episode.episodeNumber}"></span>
+                </div>
+                <div class="episode-title">
+                    <a th:href="@{/episodes/{id}(id=${episode.id})}" th:text="${episode.title}"></a>
+                </div>
+                <div class="hosts-line">
+                    <strong>Hosts:</strong> <span th:text="${episode.hosts}"></span>
+                </div>
+                <div class="hosts-line" th:if="${episode.guests != null and !episode.guests.isBlank()}">
+                    <strong>Guest:</strong> <span th:text="${episode.guests}"></span>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="badges-row">
+                    <span class="badge"
+                          th:classappend="'badge-status-' + ${#strings.toLowerCase(episode.status.name())}"
+                          th:text="${#strings.replace(episode.status.name(),'_',' ')}"></span>
+                    <span class="badge badge-category"
+                          th:text="${#strings.replace(episode.category.name(),'_',' ')}"></span>
+                    <span class="badge badge-speed" th:if="${episode.playbackSpeed != null}"
+                          th:text="${#strings.replace(#strings.replace(episode.playbackSpeed.name(),'SPEED_',''),'_','.')}"></span>
+                    <span class="badge badge-explicit" th:if="${episode.explicitContent}">🅴 Explicit</span>
+                </div>
+
+                <div class="progress-row"
+                     th:if="${episode.durationMinutes != null and episode.minutesListened != null and episode.minutesListened > 0 and episode.status.name() != 'QUEUED'}"
+                     th:with="percent=${(episode.minutesListened * 100) / episode.durationMinutes}">
+                    <div class="progress-info">
+                        <span th:text="${episode.minutesListened} + ' / ' + ${episode.durationMinutes} + ' min'"></span>
+                        <span class="progress-percent" th:text="${percent} + '%'"></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width:' + ${percent} + '%'"></div>
+                    </div>
+                </div>
+
+                <div class="stars-row">
+                    <div class="stars" th:if="${episode.rating != null}">
+                        <span th:each="i : ${#numbers.sequence(1,5)}"
+                              th:classappend="${i <= episode.rating} ? 'star-filled' : 'star-empty'"
+                              th:text="${i <= episode.rating} ? '★' : '☆'"></span>
+                    </div>
+                    <span class="recommend-pill" th:if="${episode.recommendToFriend}">♡ Recommended</span>
+                </div>
+
+                <div class="meta-row">
+                    <span class="meta-item" th:if="${episode.durationMinutes != null}">
+                        ⏱ <strong th:text="${episode.durationMinutes} + ' min'"></strong>
+                    </span>
+                    <span class="meta-item" th:if="${episode.listeningContext != null}">
+                        🎧 <strong th:text="${#strings.replace(episode.listeningContext.name(),'_',' ')}"></strong>
+                    </span>
+                    <span class="meta-item" th:if="${episode.releaseDate != null}">
+                        📅 <strong th:text="${#temporals.format(episode.releaseDate, 'dd MMM yyyy')}"></strong>
+                    </span>
+                </div>
+
+                <div class="quote-snippet"
+                     th:if="${episode.memorableQuote != null and !episode.memorableQuote.isBlank()}"
+                     th:text="${#strings.length(episode.memorableQuote) > 110 ? #strings.substring(episode.memorableQuote, 0, 110) + '...' : episode.memorableQuote}"></div>
+            </div>
+
+            <div class="card-footer" sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/episodes/edit/{id}(id=${episode.id})}" class="btn btn-outline btn-sm">Edit</a>
+                <form th:action="@{/episodes/delete/{id}(id=${episode.id})}" method="post"
+                      onsubmit="return confirm('Remove this episode?')">
+                    <button type="submit" class="btn-danger-sm">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

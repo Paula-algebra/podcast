@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — PodCast</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #1a0d2e; --surface: #25193d; --surface-2: #2f2049;
+            --border: #3d2d5e; --accent: #ff6b6b; --accent-hover: #ee5454;
+            --accent-soft: #ff9999; --coral: #ff8a65; --gold: #ffd166;
+            --purple: #8b5cf6; --pink: #ec4899; --teal: #4dd4ac;
+            --text: #f5f0ff; --text-muted: #a89bc7;
+            --success: #4dd4ac; --danger: #ff5c6c; --info: #60a5fa;
+        }
+        body { background: linear-gradient(135deg, #1a0d2e 0%, #2d1b4e 50%, #1a0d2e 100%); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; position: relative; overflow: hidden; }
+
+        /* Animated waveform background */
+        .waveform-bg { position: fixed; bottom: 10%; left: 0; right: 0; display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 80px; opacity: 0.12; pointer-events: none; }
+        .wave-bar { width: 4px; background: linear-gradient(180deg, var(--accent) 0%, var(--purple) 100%); border-radius: 2px; animation: wave-pulse 1.5s ease-in-out infinite; }
+        @keyframes wave-pulse {
+            0%, 100% { height: 20%; }
+            50% { height: 100%; }
+        }
+
+        .auth-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2.75rem 2rem; width: 100%; max-width: 400px; box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 40px rgba(255,107,107,0.1); position: relative; z-index: 1; }
+
+        .brand-section { text-align: center; margin-bottom: 2rem; }
+        .brand-icon { width: 72px; height: 72px; margin: 0 auto 1rem; background: linear-gradient(135deg, var(--accent) 0%, var(--coral) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(255,107,107,0.4); position: relative; }
+        .brand-icon::before { content: ''; position: absolute; inset: -8px; background: radial-gradient(circle, rgba(255,107,107,0.3) 0%, transparent 70%); border-radius: 50%; z-index: -1; }
+        .brand-icon svg { width: 38px; height: 38px; fill: var(--text); }
+
+        .brand { font-size: 2rem; font-weight: 900; color: var(--text); letter-spacing: -1px; margin-bottom: 0.25rem; }
+        .brand-accent { background: linear-gradient(135deg, var(--accent) 0%, var(--coral) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .subtitle { color: var(--text-muted); font-size: 0.95rem; }
+        .waveform-deco { display: flex; align-items: center; justify-content: center; gap: 3px; margin: 0.6rem 0 0; height: 16px; }
+        .waveform-deco .bar { width: 3px; background: var(--accent); border-radius: 2px; opacity: 0.7; }
+        .waveform-deco .bar:nth-child(1) { height: 40%; }
+        .waveform-deco .bar:nth-child(2) { height: 70%; }
+        .waveform-deco .bar:nth-child(3) { height: 100%; }
+        .waveform-deco .bar:nth-child(4) { height: 60%; }
+        .waveform-deco .bar:nth-child(5) { height: 90%; }
+        .waveform-deco .bar:nth-child(6) { height: 45%; }
+        .waveform-deco .bar:nth-child(7) { height: 80%; }
+        .waveform-deco .bar:nth-child(8) { height: 35%; }
+
+        .form-group { margin-bottom: 1.1rem; }
+        .form-label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 0.4rem; }
+        .form-control { width: 100%; background: var(--surface-2); border: 1.5px solid var(--border); color: var(--text); padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.95rem; transition: all 0.2s; }
+        .form-control:focus { outline: none; border-color: var(--accent); background: var(--bg); box-shadow: 0 0 0 3px rgba(255,107,107,0.15); }
+
+        .btn-submit { display: block; width: 100%; padding: 0.9rem; background: linear-gradient(135deg, var(--accent) 0%, var(--coral) 100%); color: var(--text); border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 800; cursor: pointer; margin-top: 1.5rem; letter-spacing: 1.5px; text-transform: uppercase; transition: all 0.2s; box-shadow: 0 6px 20px rgba(255,107,107,0.35); }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(255,107,107,0.45); }
+
+        .alert { padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 1.25rem; font-size: 0.875rem; }
+        .alert-danger  { background: rgba(255,92,108,0.1); border: 1px solid rgba(255,92,108,0.3); color: var(--danger); }
+        .alert-success { background: rgba(77,212,172,0.1); border: 1px solid rgba(77,212,172,0.3); color: var(--success); }
+
+        .footer-link { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted); }
+        .footer-link a { color: var(--accent); text-decoration: none; font-weight: 700; }
+        .footer-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="waveform-bg">
+    <div class="wave-bar" style="height: 30%; animation-delay: 0.0s;"></div>
+    <div class="wave-bar" style="height: 60%; animation-delay: 0.1s;"></div>
+    <div class="wave-bar" style="height: 90%; animation-delay: 0.2s;"></div>
+    <div class="wave-bar" style="height: 45%; animation-delay: 0.3s;"></div>
+    <div class="wave-bar" style="height: 75%; animation-delay: 0.4s;"></div>
+    <div class="wave-bar" style="height: 35%; animation-delay: 0.5s;"></div>
+    <div class="wave-bar" style="height: 80%; animation-delay: 0.6s;"></div>
+    <div class="wave-bar" style="height: 55%; animation-delay: 0.7s;"></div>
+    <div class="wave-bar" style="height: 95%; animation-delay: 0.8s;"></div>
+    <div class="wave-bar" style="height: 25%; animation-delay: 0.9s;"></div>
+    <div class="wave-bar" style="height: 70%; animation-delay: 1.0s;"></div>
+    <div class="wave-bar" style="height: 50%; animation-delay: 1.1s;"></div>
+    <div class="wave-bar" style="height: 85%; animation-delay: 1.2s;"></div>
+    <div class="wave-bar" style="height: 40%; animation-delay: 1.3s;"></div>
+    <div class="wave-bar" style="height: 65%; animation-delay: 1.4s;"></div>
+</div>
+
+<div class="auth-box">
+    <div class="brand-section">
+        <div class="brand-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+        </div>
+        <div class="brand"><span class="brand-accent">Pod</span>Cast</div>
+        <div class="waveform-deco">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+        <div class="subtitle">Welcome back, listener.</div>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger">Invalid username or password.</div>
+    <div th:if="${param.logout}" class="alert alert-success">You have been logged out.</div>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <form th:action="@{/auth/login}" method="post">
+        <div class="form-group">
+            <label class="form-label" for="username">Username</label>
+            <input id="username" class="form-control" type="text" name="username" autocomplete="username" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input id="password" class="form-control" type="password" name="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn-submit">▶ Press Play</button>
+    </form>
+
+    <div class="footer-link">First time here? <a th:href="@{/auth/register}">Register</a></div>
+</div>
+</body>
+</html>
