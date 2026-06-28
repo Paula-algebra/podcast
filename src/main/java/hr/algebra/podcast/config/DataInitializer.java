@@ -13,6 +13,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 
@@ -22,6 +23,13 @@ public class DataInitializer implements ApplicationRunner {
     private final UserRepository userRepository;
     private final EpisodeRepository episodeRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final String SPOTIFY = "Spotify";
+
+    @Value("${app.default.admin.password}")
+    private String adminPassword;
+
+    @Value("${app.default.user.password}")
+    private String userPassword;
 
     public DataInitializer(
         UserRepository userRepository,
@@ -40,20 +48,20 @@ public class DataInitializer implements ApplicationRunner {
         User admin = new User();
         admin.setUsername("admin");
         admin.setEmail("admin@podcast.hr");
-        admin.setPassword(passwordEncoder.encode("admin123"));
+        admin.setPassword(passwordEncoder.encode(adminPassword));
         admin.setRole(Role.ADMIN);
         admin = userRepository.save(admin);
 
         User user = new User();
         user.setUsername("user");
         user.setEmail("user@podcast.hr");
-        user.setPassword(passwordEncoder.encode("user123"));
+        user.setPassword(passwordEncoder.encode(userPassword));
         user.setRole(Role.USER);
         userRepository.save(user);
 
         createEpisode("The Wellness Industrial Complex",
             "Maintenance Phase", "Aubrey Gordon, Michael Hobbes", null,
-            "Spotify", "S3E12", 3,
+                SPOTIFY, "S3E12", 3,
             PodcastCategory.HEALTH_WELLNESS, ListeningStatus.FINISHED,
             ListeningContext.COMMUTE, PlaybackSpeed.SPEED_1_25X,
             92, 92, 5, 10, 9, 10, 9,
@@ -68,7 +76,7 @@ public class DataInitializer implements ApplicationRunner {
 
         createEpisode("The Joe Schmo Show Phenomenon",
             "You're Wrong About", "Sarah Marshall", "Blair Braverman",
-            "Spotify", "EP 178", null,
+                SPOTIFY, "EP 178", null,
             PodcastCategory.SOCIETY_CULTURE, ListeningStatus.FINISHED,
             ListeningContext.HOUSEWORK, PlaybackSpeed.SPEED_1_5X,
             78, 78, 5, 9, 8, 10, 8,
@@ -98,7 +106,7 @@ public class DataInitializer implements ApplicationRunner {
 
         createEpisode("Episode 1: Cassie Bernall",
             "Last Podcast on the Left", "Marcus Parks, Henry Zebrowski, Ed Larson", null,
-            "Spotify", "EP 590", null,
+                SPOTIFY, "EP 590", null,
             PodcastCategory.TRUE_CRIME, ListeningStatus.LISTENING,
             ListeningContext.WORKOUT, PlaybackSpeed.SPEED_1_5X,
             134, 67, null, null, null, null, null,

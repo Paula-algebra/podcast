@@ -35,14 +35,17 @@ public class SecurityConfig {
         http
             .securityMatcher("/api/**")
             .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/episodes/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/episodes/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/episodes/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/episodes/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/episodes", "/api/episodes/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/episodes", "/api/episodes/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/episodes", "/api/episodes/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/episodes", "/api/episodes/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/database/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -81,6 +84,20 @@ public class SecurityConfig {
                 .permitAll()
             )
             .headers(headers -> headers
+                    .contentSecurityPolicy(csp -> csp
+                            .policyDirectives(
+                                    "default-src 'self'; " +
+                                    "script-src 'self'; " +
+                                    "style-src 'self' 'unsafe-inline'; " +
+                                    "img-src 'self' data:; " +
+                                    "font-src 'self'; " +
+                                    "object-src 'none'; " +
+                                    "base-uri 'self'; " +
+                                    "form-action 'self'; " +
+                                    "frame-ancestors 'self'"
+                            )
+                    )
+
                 .addHeaderWriter(new XFrameOptionsHeaderWriter(
                     XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
             );

@@ -79,6 +79,7 @@ curl -X POST http://localhost:8080/api/auth/login \
 curl http://localhost:8080/api/episodes \
   -H "Authorization: Bearer <access_token>"
 ```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzgyMzc5Mzg5LCJleHAiOjE3ODIzODAyODl9.Y_7MWa3kSK_m9efAlJBiE-lXJIXY3A7V2FGsht7CgCI
 
 ## Swagger UI
 
