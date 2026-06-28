@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+
+<?import javafx.scene.control.ScrollPane?>
+
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.podcast_fx.controllers.LoginController"
+            fitToWidth="true">
+    <content>
+        <VBox spacing="12" alignment="CENTER">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+            </padding>
+
+          <Label fx:id="welcomeText"/>
+            <TextField fx:id="username"/>
+            <PasswordField fx:id="password"/>
+          <Button text="Login" onAction="#onLoginButtonClick"/>
+
+            <Button text="Load Episodes" onAction="#onLoadEpisodesClick"/>
+
+            <TableView fx:id="episodeTable" prefHeight="250" prefWidth="600">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="80" />
+                    <TableColumn fx:id="titleColumn" text="Title" prefWidth="180" />
+                    <TableColumn fx:id="showNameColumn" text="Show" prefWidth="180" />
+                    <TableColumn fx:id="categoryColumn" text="Category" prefWidth="180" />
+                    <TableColumn fx:id="statusColumn" text="Status" prefWidth="180" />
+                    <TableColumn fx:id="ratingColumn" text="Rating" prefWidth="80" />
+                </columns>
+            </TableView>
+
+            <TextField fx:id="titleField" promptText="Title" />
+            <TextField fx:id="showNameField" promptText="Show name" />
+            <TextField fx:id="hostsField" promptText="Hosts" />
+            <TextField fx:id="categoryField" promptText="Category e.g. COMEDY" />
+            <TextField fx:id="statusField" promptText="Status e.g. QUEUED" />
+            <TextField fx:id="ratingField" promptText="Rating 1-5" />
+
+
+            <Button text="Save Episode" onAction="#onSaveEpisodeClick" />
+
+            <TextField fx:id="idField" promptText="Episode ID" />
+            <Button text="Get by ID" onAction="#onGetByIdClick" />
+
+            <Button text="Delete by ID" onAction="#onDeleteByIdClick" />
+
+            <Button text="Update by ID" onAction="#onUpdateByIdClick" />
+
+            <Button text="Backup Database" onAction="#onBackupDatabaseClick" />
+
+            <TextField fx:id="restorePathField" promptText="Backup file path" />
+            <Button text="Restore Database" onAction="#onRestoreDatabaseClick" />
+        </VBox>
+    </content>
+</ScrollPane>
