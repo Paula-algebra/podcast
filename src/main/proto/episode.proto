@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package camelpodcast.proto;
+
+option java_package = "camelpodcast.proto";
+option java_outer_classname = "EpisodePublicationProto";
+option java_multiple_files = true;
+
+// EpisodePublicationEvent represents an episode publication sent over Kafka
+// using a compact, schema-bound Protobuf binary encoding.
+message EpisodePublicationEvent {
+
+  // Globally unique publication id (UUID).
+  string publication_id = 1;
+
+  // Identifier of the published podcast episode.
+  string episode_id = 2;
+
+  // Title of the published episode.
+  string episode_title = 3;
+
+  // Podcast show to which the episode belongs.
+  string show_name = 4;
+
+  // Distribution platform, e.g. Spotify or Apple Podcasts.
+  string platform = 5;
+
+  // Epoch milliseconds at which the publication was created.
+  int64 timestamp = 6;
+
+  // Lifecycle status of the episode publication.
+  PublicationStatus status = 7;
+}
+
+enum PublicationStatus {
+  PUBLICATION_STATUS_UNSPECIFIED = 0;
+  PENDING                        = 1;
+  PUBLISHED                      = 2;
+  FAILED                         = 3;
+  UNPUBLISHED                    = 4;
+}

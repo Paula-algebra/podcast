@@ -3,12 +3,10 @@ package camelpodcast.route;
 import camelpodcast.config.AppConfig;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.springframework.stereotype.Component;
 
 import camelpodcast.processor.ResponseProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Component
 public class UpdateRoute extends RouteBuilder {
 
     private int updateIndex = 0;

@@ -5,12 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.springframework.stereotype.Component;
 
 import camelpodcast.processor.ResponseProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Component
 public class DeleteRoute extends RouteBuilder {
 
     private final ObjectMapper mapper = new ObjectMapper();

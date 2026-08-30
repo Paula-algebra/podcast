@@ -1,0 +1,16 @@
+{
+  "namespace": "camelpodcast.avro",
+  "type": "record",
+  "name": "EpisodeActivity",
+  "doc": "Podcast episode activity published to Kafka in Avro binary format.",
+  "fields": [
+    { "name": "eventId", "type": "string" },
+    { "name": "operation", "type": "string" },
+    { "name": "episodeId", "type": "long" },
+    { "name": "title", "type": "string" },
+    {
+      "name": "timestamp",
+      "type": { "type": "long", "logicalType": "timestamp-millis" }
+    }
+  ]
+}
